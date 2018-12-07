@@ -2,8 +2,7 @@
 title: "Baseball"
 author: "Ryan Moorhead"
 date: "12/7/2018"
-output: 
- html_notebook
+output: html_notebook
   
 ---
 
@@ -15,7 +14,7 @@ library(ggplot2)
 library(rpart.plot)
 ```
 
-##Putting the data from csv files in GitHub
+Putting the data from csv files in GitHub to tables
 
 ```{r}
 Batting <- read.csv("2018 Batting Stats Min. 50 AB.csv")
@@ -28,7 +27,7 @@ ZipsBat <- read.csv("ZiPS 2018 Batting Projections.csv")
 ZipsPitch <- read.csv("ZiPS 2018 Pitching Projections.csv")
 ```
 
-##Viewing the Data
+Viewing the Data
 
 The cases themselves seem to be workable, nothing to change, but the names of the variables are quite messed up.
 
