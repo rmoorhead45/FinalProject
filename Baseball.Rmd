@@ -9,6 +9,8 @@ output: html_document
 library(DataComputing)
 library(mosaic)
 library(tidyverse)
+library(ggplot2)
+library(rpart.plot)
 ```
 
 ## R Markdown
@@ -19,14 +21,152 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r}
 Batting <- read.csv("2018 Batting Stats Min. 50 AB.csv")
+Pitching <- read.csv("2018 Pitching Stats Min. 10 IP.csv")
+FansBat <- read.csv("Fans 2018 Batting Projections.csv")
+FansPitch <- read.csv("Fans 2018 Pitching Projections.csv")
+SteamBat <- read.csv("Steamer 2018 Batting Projections.csv")
+SteamPitch <- read.csv("Steamer 2018 Pitching Projections.csv")
+ZipsBat <- read.csv("ZiPS 2018 Batting Projections.csv")
+ZipsPitch <- read.csv("ZiPS 2018 Pitching Projections.csv")
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+Batting %>%
+  head(3)
+Pitching %>%
+  head(3)
+FansBat %>%
+  head(3)
+FansPitch %>%
+  head(3)
+SteamBat %>%
+  head(3)
+SteamPitch %>%
+  head(3)
+ZipsBat %>%
+  head(3)
+ZipsPitch %>%
+  head(3)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+names(Batting) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
+
+#names(FansBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
+
+#names(SteamBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
+
+#names(ZipsBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
+
+names(Pitching) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
+
+#names(FansPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
+
+#names(SteamPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
+
+names(ZipsPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
+```
+
+```{r}
+Batting %>%
+  head(3)
+Pitching %>%
+  head(3)
+FansBat %>%
+  head(3)
+FansPitch %>%
+  head(3)
+SteamBat %>%
+  head(3)
+SteamPitch %>%
+  head(3)
+ZipsBat %>%
+  head(3)
+ZipsPitch %>%
+  head(3)
+```
+```{r}
+Pitching <- Pitching %>%
+  mutate(ks = strikeoutper9 * innings / 9) %>%
+  mutate(bb = walksper9 * innings / 9) %>%
+  mutate(hr = homerunsper9 * innings / 9)
+```
+
+```{r}
+Batting <- Batting %>%
+  mutate(paperhomerun = pa / homeruns)
+```
+
+```{r}
+Batting %>%
+  ggplot(aes(x = average, y = war)) +
+  geom_point()
+Batting %>%
+  ggplot(aes(x = wrc, y = war)) +
+  geom_point()
+Batting %>%
+  ggplot(aes(x = homeruns, y = war)) +
+  geom_point()
+Batting %>%
+  ggplot(aes(x = paperhomerun, y = war)) +
+  geom_point()
+
+Batting %>%
+  group_by(name, paperhomerun, war) %>%
+  filter(paperhomerun != "Inf") %>%
+  summarise() %>%
+  arrange(paperhomerun)
+```
+
+```{r}
+Pitching %>%
+  ggplot(aes(x = innings, y = war)) +
+  geom_point()
+Pitching %>%
+  ggplot(aes(x = ks, y = war)) +
+  geom_point()
+Pitching %>%
+  ggplot(aes(x = bb, y = war)) +
+  geom_point()
+Pitching %>%
+  ggplot(aes(x = hr, y = war)) +
+  geom_point()
+Pitching %>%
+  ggplot(aes(x = era, y = war)) +
+  geom_point()
+Pitching %>%
+  ggplot(aes(x = fip, y = war)) +
+  geom_point()
+Pitching %>%
+  ggplot(aes(x = wins, y = war)) +
+  geom_point()
+```
+
+```{r}
+
+Reggression <- Batting %>%
+  filter(paperhomerun != "Inf") %>%
+  lm(war ~ paperhomerun, data = .)
+summary(Reggression)
+```
+```{r}
+
+model4 <- Pitching %>%
+  lm(war ~ ks, data = .)
+
+summary(model4)
+```
+
+```{r}
+model2 <- Batting %>%
+  rpart(war ~ average + homeruns + wrc + pa + steals + rbi + runs + paperhomerun, data = .)
+
+prp(model2)
+```
+
+```{r}
+model3 <- Pitching %>%
+  rpart(war ~ innings + era + ks + fip + bb + hr, data = .)
+
+prp(model3)
+```
