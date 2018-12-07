@@ -62,37 +62,12 @@ ZipsBat <- ZipsBat %>%
   rename(zipwar = WAR, name = ï..Name, pid2 = playerid)
 ZipsPitch <- ZipsPitch %>%
   rename(zipwar = WAR, name = ï..Name, pid2 = playerid)
-#names(FansBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
-
-#names(SteamBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
-
-#names(ZipsBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
-
-names(Pitching) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
-
-#names(FansPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
-
-#names(SteamPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
-
-#names(ZipsPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
 ```
 
 ```{r}
 Batting %>%
   head(3)
 Pitching %>%
-  head(3)
-FansBat %>%
-  head(3)
-FansPitch %>%
-  head(3)
-SteamBat %>%
-  head(3)
-SteamPitch %>%
-  head(3)
-ZipsBat %>%
-  head(3)
-ZipsPitch %>%
   head(3)
 ```
 ```{r}
