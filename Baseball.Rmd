@@ -50,6 +50,8 @@ ZipsPitch %>%
 ```{r}
 names(Batting) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
 
+names(Pitching) <-c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
+
 FansBat <- FansBat %>%
   rename(fanwar = WAR, name = ï..Name, pid = playerid)
 FansPitch <- FansPitch %>%
