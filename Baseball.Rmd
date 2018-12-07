@@ -226,7 +226,7 @@ Graphed many different variables to see if there was any specific stat that has 
 
 ```{r}
 Batting %>%
-  ggplot(aes(x = average, y = war)) +
+  ggplot(aes(x = average, y = war, size = homeruns)) +
   geom_smooth() +
   geom_point()
 Batting %>%
