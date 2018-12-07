@@ -2,7 +2,9 @@
 title: "Baseball"
 author: "Ryan Moorhead"
 date: "12/7/2018"
-output: html_document
+output: 
+ html_notebook
+  
 ---
 
 ```{r setup, include=FALSE}
@@ -47,6 +49,7 @@ ZipsBat %>%
   head(3)
 ZipsPitch %>%
   head(3)
+
 ```
 
 ```{r}
