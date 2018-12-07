@@ -15,11 +15,6 @@ library(ggplot2)
 library(rpart.plot)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
 Batting <- read.csv("2018 Batting Stats Min. 50 AB.csv")
@@ -55,6 +50,18 @@ ZipsPitch %>%
 ```{r}
 names(Batting) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
 
+FansBat <- FansBat %>%
+  rename(fanwar = WAR, name = ï..Name, pid = playerid)
+FansPitch <- FansPitch %>%
+  rename(fanwar = WAR, name = ï..Name, pid = playerid)
+SteamBat <- SteamBat %>%
+  rename(steamwar = WAR, name = ï..Name, pid1 = playerid)
+SteamPitch <- SteamPitch %>%
+  rename(steamwar = WAR, name = ï..Name, pid1 = playerid)
+ZipsBat <- ZipsBat %>%
+  rename(zipwar = WAR, name = ï..Name, pid2 = playerid)
+ZipsPitch <- ZipsPitch %>%
+  rename(zipwar = WAR, name = ï..Name, pid2 = playerid)
 #names(FansBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
 
 #names(SteamBat) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
@@ -67,7 +74,7 @@ names(Pitching) <- c("name", "team", "wins", "loses", "saves", "games", "gamesst
 
 #names(SteamPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
 
-names(ZipsPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
+#names(ZipsPitch) <- c("name", "team", "wins", "loses", "saves", "games", "gamesstarted", "innings", "strikeoutper9", "walksper9", "homerunsper9", "babip", "lob", "gb", "hrperfb", "era", "fip", "xfip", "war", "playerid")
 ```
 
 ```{r}
@@ -88,6 +95,91 @@ ZipsBat %>%
 ZipsPitch %>%
   head(3)
 ```
+```{r}
+Bat1 <- Batting %>%
+  inner_join(ZipsBat)
+
+Bat1 <- Bat1 %>%
+  group_by(name, war, zipwar) %>%
+  summarise()
+
+Bat2 <- Bat1 %>%
+  inner_join(FansBat)
+
+Bat2 <- Bat2 %>%
+  group_by(name, war, zipwar, fanwar) %>%
+  summarise()
+
+Bat3 <- Bat2 %>%
+  inner_join(SteamBat)
+
+BatPrediction <- Bat3 %>%
+  group_by(name, war, zipwar, fanwar, steamwar) %>%
+  summarise()
+
+Pit1 <- Pitching %>%
+  inner_join(ZipsPitch)
+
+Pit1 <- Pit1 %>%
+  group_by(name, war, zipwar) %>%
+  summarise()
+
+Pit2 <- Pit1 %>%
+  inner_join(FansPitch)
+
+Pit2 <- Pit2 %>%
+  group_by(name, war, zipwar, fanwar) %>%
+  summarise()
+
+Pit3 <- Pit2 %>%
+  inner_join(SteamPitch)
+
+PitchingPrediction <- Pit3 %>%
+  group_by(name, war, zipwar, fanwar, steamwar) %>%
+  summarise()
+head(BatPrediction)
+head(PitchingPrediction)
+```
+```{r}
+BatPrediction <- BatPrediction %>%
+  mutate(averagewar = (zipwar + fanwar + steamwar)/3)
+PitchPrediction <- BatPrediction %>%
+  mutate(averagewar = (zipwar + fanwar + steamwar)/3)
+
+HittersRegression <- BatPrediction %>%
+  lm(war ~ averagewar, data = .)
+summary(HittersRegression)
+
+HittersRegressionFan <- BatPrediction %>%
+  lm(war ~ fanwar, data = .)
+summary(HittersRegressionFan)
+
+HittersRegressionSteam <- BatPrediction %>%
+  lm(war ~ steamwar, data = .)
+summary(HittersRegressionSteam)
+
+HittersRegressionZip <- BatPrediction %>%
+  lm(war ~ zipwar, data = .)
+summary(HittersRegressionZip)
+```
+```{r}
+PitchersRegression <- PitchPrediction %>%
+  lm(war ~ averagewar, data = .)
+summary(PitchersRegression)
+
+PitchersRegressionFan <- PitchPrediction %>%
+  lm(war ~ fanwar, data = .)
+summary(PitchersRegressionFan)
+
+PitchersRegressionSteam <- PitchPrediction %>%
+  lm(war ~ steamwar, data = .)
+summary(PitchersRegressionSteam)
+
+PitchersRegressionZip <- PitchPrediction %>%
+  lm(war ~ zipwar, data = .)
+summary(PitchersRegressionZip)
+```
+
 ```{r}
 Pitching <- Pitching %>%
   mutate(ks = strikeoutper9 * innings / 9) %>%
