@@ -15,6 +15,7 @@ library(ggplot2)
 library(rpart.plot)
 ```
 
+##Putting the data from csv files in GitHub
 
 ```{r}
 Batting <- read.csv("2018 Batting Stats Min. 50 AB.csv")
@@ -26,6 +27,10 @@ SteamPitch <- read.csv("Steamer 2018 Pitching Projections.csv")
 ZipsBat <- read.csv("ZiPS 2018 Batting Projections.csv")
 ZipsPitch <- read.csv("ZiPS 2018 Pitching Projections.csv")
 ```
+
+##Viewing the Data
+
+The cases themselves seem to be workable, nothing to change, but the names of the variables are quite messed up.
 
 ```{r}
 Batting %>%
@@ -47,6 +52,7 @@ ZipsPitch %>%
 
 ```
 
+Only renaming the actual 2018 stats, as I will be using them for most of the analysis, and the projections are just for comparing Wins above Replacement
 ```{r}
 names(Batting) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
 
@@ -72,6 +78,8 @@ Batting %>%
 Pitching %>%
   head(3)
 ```
+Combined the tables to get data sets with just the name, Wins Above Replacement, and the predictions for Wins Above Replacement
+
 ```{r}
 Bat1 <- Batting %>%
   inner_join(ZipsBat)
@@ -117,6 +125,7 @@ PitchingPrediction <- Pit3 %>%
 head(BatPrediction)
 head(PitchingPrediction)
 ```
+Added the average of the three predicted Wins Above Replacement, and then graphed the WAR compared to the predicted WAR, and did a reggression test on them too to see which prediction method had the least variance.
 ```{r}
 BatPrediction <- BatPrediction %>%
   mutate(averagewar = (zipwar + fanwar + steamwar)/3)
@@ -127,35 +136,78 @@ HittersRegression <- BatPrediction %>%
   lm(war ~ averagewar, data = .)
 summary(HittersRegression)
 
+BatPrediction %>%
+  ggplot(aes(x = war, y = averagewar)) +
+  geom_smooth() +
+  geom_point()
+
 HittersRegressionFan <- BatPrediction %>%
   lm(war ~ fanwar, data = .)
 summary(HittersRegressionFan)
+
+
+BatPrediction %>%
+  ggplot(aes(x = war, y = fanwar)) +
+  geom_smooth() +
+  geom_point()
 
 HittersRegressionSteam <- BatPrediction %>%
   lm(war ~ steamwar, data = .)
 summary(HittersRegressionSteam)
 
+BatPrediction %>%
+  ggplot(aes(x = war, y = steamwar)) +
+  geom_smooth() +
+  geom_point()
+
 HittersRegressionZip <- BatPrediction %>%
   lm(war ~ zipwar, data = .)
 summary(HittersRegressionZip)
+
+BatPrediction %>%
+  ggplot(aes(x = war, y = zipwar)) +
+  geom_smooth() +
+  geom_point()
 ```
 ```{r}
 PitchersRegression <- PitchPrediction %>%
   lm(war ~ averagewar, data = .)
 summary(PitchersRegression)
 
+PitchPrediction %>%
+  ggplot(aes(x = war, y = averagewar)) +
+  geom_smooth() +
+  geom_point()
+
 PitchersRegressionFan <- PitchPrediction %>%
   lm(war ~ fanwar, data = .)
 summary(PitchersRegressionFan)
+
+PitchPrediction %>%
+  ggplot(aes(x = war, y = fanwar)) +
+  geom_smooth() +
+  geom_point()
 
 PitchersRegressionSteam <- PitchPrediction %>%
   lm(war ~ steamwar, data = .)
 summary(PitchersRegressionSteam)
 
+PitchPrediction %>%
+  ggplot(aes(x = war, y = steamwar)) +
+  geom_smooth() +
+  geom_point()
+
 PitchersRegressionZip <- PitchPrediction %>%
   lm(war ~ zipwar, data = .)
 summary(PitchersRegressionZip)
+
+PitchPrediction %>%
+  ggplot(aes(x = war, y = zipwar)) +
+  geom_smooth() +
+  geom_point()
 ```
+
+Found the exact number of Strikeouts, Walks, and Home Runs allowed for each pitcher
 
 ```{r}
 Pitching <- Pitching %>%
@@ -164,23 +216,31 @@ Pitching <- Pitching %>%
   mutate(hr = homerunsper9 * innings / 9)
 ```
 
+Calculated how many plate appearances on average it took to hit a home run
+
 ```{r}
 Batting <- Batting %>%
   mutate(paperhomerun = pa / homeruns)
 ```
 
+Graphed many different variables to see if there was any specific stat that has the highest correlation with Wins Above Replacement
+
 ```{r}
 Batting %>%
   ggplot(aes(x = average, y = war)) +
+  geom_smooth() +
   geom_point()
 Batting %>%
   ggplot(aes(x = wrc, y = war)) +
+  geom_smooth() +
   geom_point()
 Batting %>%
   ggplot(aes(x = homeruns, y = war)) +
+  geom_smooth() +
   geom_point()
 Batting %>%
   ggplot(aes(x = paperhomerun, y = war)) +
+  geom_smooth() +
   geom_point()
 
 Batting %>%
@@ -192,27 +252,40 @@ Batting %>%
 
 ```{r}
 Pitching %>%
+  ggplot(aes(x = era, y = war, size = ks)) +
+  geom_smooth(aes(x = era, y = war)) +
+  geom_point()
+Pitching %>%
   ggplot(aes(x = innings, y = war)) +
+  geom_smooth(aes(x = innings, y = war)) +
   geom_point()
 Pitching %>%
   ggplot(aes(x = ks, y = war)) +
+  geom_smooth(aes(x = ks, y = war)) +
   geom_point()
 Pitching %>%
   ggplot(aes(x = bb, y = war)) +
+  geom_smooth(aes(x = bb, y = war)) +
   geom_point()
 Pitching %>%
   ggplot(aes(x = hr, y = war)) +
+  geom_smooth(aes(x = hr, y = war)) +
   geom_point()
 Pitching %>%
   ggplot(aes(x = era, y = war)) +
+  geom_smooth(aes(x = era, y = war)) +
   geom_point()
 Pitching %>%
   ggplot(aes(x = fip, y = war)) +
+  geom_smooth(aes(x = fip, y = war)) +
   geom_point()
 Pitching %>%
   ggplot(aes(x = wins, y = war)) +
+  geom_smooth(aes(x = wins, y = war)) +
   geom_point()
 ```
+
+Reggression to see if Plate Appearence per Home Run was a strong predictor for WAR
 
 ```{r}
 
@@ -223,22 +296,24 @@ summary(Reggression)
 ```
 ```{r}
 
-model4 <- Pitching %>%
+kmodel <- Pitching %>%
   lm(war ~ ks, data = .)
 
-summary(model4)
+summary(kmodel)
 ```
 
+Did regression with a variety of statistics to see what it would determine what the most important factors were for WAR
+
 ```{r}
-model2 <- Batting %>%
+batmodel <- Batting %>%
   rpart(war ~ average + homeruns + wrc + pa + steals + rbi + runs + paperhomerun, data = .)
 
-prp(model2)
+prp(batmodel)
 ```
 
 ```{r}
-model3 <- Pitching %>%
+pitchmodel <- Pitching %>%
   rpart(war ~ innings + era + ks + fip + bb + hr, data = .)
 
-prp(model3)
+prp(pitchmodel)
 ```
