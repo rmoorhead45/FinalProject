@@ -2,8 +2,9 @@
 title: "Baseball"
 author: "Ryan Moorhead"
 date: "12/7/2018"
-output: html_notebook
-  
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -13,8 +14,11 @@ library(tidyverse)
 library(ggplot2)
 library(rpart.plot)
 ```
+# Introduction
 
-Putting the data from csv files in GitHub to tables
+In this RStudio project, I will be examining 8 different data tables, two of them are the 2018 MLB player stats, Batting and Pitching, the other 6 are all projections of the 2018 player stats. The most important stat I plan on examining is WAR or Wins Above Replacement. WAR is the amount of wins a player contributes to a team, compared to a random minor league player, or replacement player. For reference, 2 WAR is starter worthy, 5+ is all-star level, and 8+ is enough for MVP. I plan on determining which projection is the most accurate to the actual stats, and also with the actual stats I want to see if there is a certain stat the contributes most to WAR.
+
+## Putting the data from csv files in GitHub to tables
 
 ```{r}
 Batting <- read.csv("2018 Batting Stats Min. 50 AB.csv")
@@ -27,7 +31,7 @@ ZipsBat <- read.csv("ZiPS 2018 Batting Projections.csv")
 ZipsPitch <- read.csv("ZiPS 2018 Pitching Projections.csv")
 ```
 
-Viewing the Data
+## Viewing the Data
 
 The cases themselves seem to be workable, nothing to change, but the names of the variables are quite messed up.
 
@@ -51,7 +55,7 @@ ZipsPitch %>%
 
 ```
 
-Only renaming the actual 2018 stats, as I will be using them for most of the analysis, and the projections are just for comparing Wins above Replacement
+I only renamed the actual 2018 stats, as I will be using them for most of the analysis, and the projections are just for comparing Wins above Replacement
 ```{r}
 names(Batting) <- c("name", "team", "games", "pa", "homeruns", "runs", "rbi", "steals", "walkpercentage", "strikeoutpercentage", "iso", "babip", "average", "obp", "slugging", "woba", "wrc", "bsr","oruns", "druns", "war", "playerid")
 
@@ -70,6 +74,8 @@ ZipsBat <- ZipsBat %>%
 ZipsPitch <- ZipsPitch %>%
   rename(zipwar = WAR, name = ï..Name, pid2 = playerid)
 ```
+
+Quick view of the new table
 
 ```{r}
 Batting %>%
@@ -125,6 +131,7 @@ head(BatPrediction)
 head(PitchingPrediction)
 ```
 Added the average of the three predicted Wins Above Replacement, and then graphed the WAR compared to the predicted WAR, and did a reggression test on them too to see which prediction method had the least variance.
+
 ```{r}
 BatPrediction <- BatPrediction %>%
   mutate(averagewar = (zipwar + fanwar + steamwar)/3)
@@ -205,6 +212,11 @@ PitchPrediction %>%
   geom_smooth() +
   geom_point()
 ```
+## Conclusion of Regression
+
+Each projection method was accurate enough to have a p-value low enough to be significant, but the variance on each of them was not very high, low to mid 30s. Zip Projection has the least amount of variance, but it is not much more than the others, so while it still has the least amount of variance, you might as well just average them to be safe.
+
+## Determing Which Stat is Most Important for WAR
 
 Found the exact number of Strikeouts, Walks, and Home Runs allowed for each pitcher
 
@@ -215,32 +227,38 @@ Pitching <- Pitching %>%
   mutate(hr = homerunsper9 * innings / 9)
 ```
 
-Calculated how many plate appearances on average it took to hit a home run
+Calculated how many plate appearances on average it took to hit a home run for an individual player.
 
 ```{r}
 Batting <- Batting %>%
   mutate(paperhomerun = pa / homeruns)
 ```
 
-Graphed many different variables to see if there was any specific stat that has the highest correlation with Wins Above Replacement
+## Graphing for WAR
+
+I graphed many different stats for both pitching and hitting and compared them to WAR. The graphing is to see if there is any extremly obvious variable that most correlates to WAR, just with a visual graph.
 
 ```{r}
 Batting %>%
   ggplot(aes(x = average, y = war, size = homeruns)) +
   geom_smooth() +
-  geom_point()
+  geom_point() +
+  xlab("Average") + ylab("WAR")
 Batting %>%
   ggplot(aes(x = wrc, y = war)) +
   geom_smooth() +
-  geom_point()
+  geom_point() +
+  xlab("WRC+") + ylab("WAR")
 Batting %>%
   ggplot(aes(x = homeruns, y = war)) +
   geom_smooth() +
-  geom_point()
+  geom_point() +
+  xlab("Home Runs") + ylab("WAR")
 Batting %>%
   ggplot(aes(x = paperhomerun, y = war)) +
   geom_smooth() +
-  geom_point()
+  geom_point() +
+  xlab("PA per Home Run") + ylab("WAR")
 
 Batting %>%
   group_by(name, paperhomerun, war) %>%
@@ -253,38 +271,59 @@ Batting %>%
 Pitching %>%
   ggplot(aes(x = era, y = war, size = ks)) +
   geom_smooth(aes(x = era, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("ERA") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = innings, y = war)) +
   geom_smooth(aes(x = innings, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("Innings Pitched") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = ks, y = war)) +
   geom_smooth(aes(x = ks, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("Strikeouts") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = bb, y = war)) +
   geom_smooth(aes(x = bb, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("Walks") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = hr, y = war)) +
   geom_smooth(aes(x = hr, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("Home Runs Allowed") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = era, y = war)) +
   geom_smooth(aes(x = era, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("ERA") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = fip, y = war)) +
   geom_smooth(aes(x = fip, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("FIP") + ylab("WAR")
+
 Pitching %>%
   ggplot(aes(x = wins, y = war)) +
   geom_smooth(aes(x = wins, y = war)) +
-  geom_point()
+  geom_point() +
+  xlab("Wins") + ylab("WAR")
 ```
 
-Reggression to see if Plate Appearence per Home Run was a strong predictor for WAR
+## Review of Graphs
+
+For batting average, WAR generally increases with a higher BA, and also increases with more Home Runs, but it does not require it. Homeruns on their own have a slight positive correlation, but it is not as extreme average, WRC+ has a positive correlation like average, and plate appearences per home run does not have a strong correlation, but fewer plate appearnces does help. For pitching, a low ERA and many strikeouts help alot for WAR, and the more innings you pitch the more WAR you are likely to accumulate. Home runs and walks are slightly different, generally the more you pitch the more you give up home runs and walks, while also gaining more WAR. The best pitchers are generally in the middle of data, as not giving up many means not many innings pitched, while giving up alot is bad for WAR. ERA and FIP are similar stats, and both have a higher WAR the lower the stat is. Wins have a positive correlation, but there is a lot of variance, including the WAR leader (Jacob deGrom) having less than half the wins of the win leader.
+
+## Regression for WAR
+
+Here I calculated regression for WAR, to see statistical numbers for what is the best predictor for WAR. The two I did were for PA per Home Run for batting, and Strikeouts for pitching. PA per HR had a low p-value for its negative correlation so there was some significance, but there was a very small variance. Strikeouts had an extremely small p-value for its positive correlation, and there was a much higher r-squared value, so there is much less variance, meaning strikeouts are important for calculating WAR.
 
 ```{r}
 
@@ -301,8 +340,9 @@ kmodel <- Pitching %>%
 summary(kmodel)
 ```
 
-Did regression with a variety of statistics to see what it would determine what the most important factors were for WAR
+## Decision Trees
 
+Here I decided to see what the computer thought was most important for WAR for both pitchers and batters. I allowed the computer to parse a variety of stats and decide what were the most important for determing WAR. For batting, there are only 3 stats present in the tree, even though I used 8 different ones to create it. The computer mostly uses runs and WRC+ to determine how many wins a player would be worth, with one instance of steals under both runs and WRC+. The computer determined a large amount of runs and steals, along with a high WRC+ (Similar to batting average, the higher the better, with 100 being league average). For Pitching the model showed 3 stats as well, but I only used 6 in that model. The two most important were strikeouts and FIP (similar to ERA, lower the better), with one instance of innings.To go through an example of pitching, a pitcher with less than 132 strikeouts, a greater than 4.3 FIP, and with more than 109 innings pitches should be worth around .72 WAR.
 ```{r}
 batmodel <- Batting %>%
   rpart(war ~ average + homeruns + wrc + pa + steals + rbi + runs + paperhomerun, data = .)
@@ -316,3 +356,7 @@ pitchmodel <- Pitching %>%
 
 prp(pitchmodel)
 ```
+
+# Conclusion
+
+After examining the data, all of the projections for WAR were similarly accurate, with a low enough p-value to determine significance, but with a decent amount of variance. Enough though they were all similar, the projection with the least variance was Zips, so you could say it is the best. For most of the graphed stats, there was a noticeable correlation, both positive and negative, except for PA per Home Run, which varied a lot, although a smaller number of PAs helped, and also walks and home runs allowed, which as I explained above the middle is where the best pitchers usually lie. For the regression, PA per HR was not a huge factor into WAR, but strikeouts were much more important to pitching WAR with a low variance. With the supervised machine learning, the computer determined that runs and WRC+ for batting, and strikeouts and FIP for pitching were the most important stats, with steals and innings having a smaller influence on WAR.
